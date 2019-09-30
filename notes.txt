@@ -1,0 +1,20 @@
+score = 
+sum of values, or maybe more sum of values ^2
++
+65536^2 as blank (blank is like the perfect thing)
+
+caracterize an array:
+	well, it's the array in memory
+	i will compare the whole thing, somehow (strpcpy or somethg like that)
+	
+for each array, we can identify it
+if not all branches were explored, we tried the one we're left with
+if branch explored, we pick the best outcome score
+
+that is a lot of array though
+2^12 values + blank for 2048
+for each cell
+2^13*8=
+65536 arrays possibles up to 2048?
+that's not that much
+
