@@ -21,10 +21,11 @@ void board_free(board *b) {
 	free(b);
 }
 
-void board_print(board *b) {
+void board_print_ncurses(board *b) {
 	int i, j;
 	int space = 5;
 	char c[9] = "--------";
+	move(0, 0);
 	for (i = 0; i < SIZE_BOARD; i++) {
 		for (j = 0; j < SIZE_BOARD; j++) {
 			printw(c);
@@ -45,8 +46,30 @@ void board_print(board *b) {
 		printw(c);
 	}
 	printw("-\n");
+	refresh();
 }
 
-void board_add_random(board *b) {
-	b->board[2][2] = 2048;
+int board_add_random(board *b) {
+	int size = 0;
+	int array[SIZE_BOARD * SIZE_BOARD];
+	int i, j;
+	for (i = 0; i < SIZE_BOARD; i++) {
+		for (j = 0; j < SIZE_BOARD; j++) {
+			if (b->board[i][j] == 0) {
+				array[size] = i * SIZE_BOARD + j;
+				size++;
+			}
+		}
+	}
+	if (size > 0) {
+		int position = rand() % size;
+		position = array[position];
+		i = position / SIZE_BOARD;
+		j = position % SIZE_BOARD;
+		int val = 2 * (rand() % 2 + 1);
+		b->board[i][j] = val;
+		return 1;
+	} else {
+		return 0;
+	}
 }

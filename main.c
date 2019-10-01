@@ -1,6 +1,9 @@
 #include <stdio.h>
-#include "engine.h"
+#include <stdlib.h>
 #include <ncurses.h>
+#include <time.h>
+#include <unistd.h>
+#include "engine.h"
 
 void ncurses_init() {
 	initscr();
@@ -8,7 +11,7 @@ void ncurses_init() {
 	noecho();
 }
 
-void ncurses_free() {
+void ncurses_deinit() {
 	endwin();
 }
 
@@ -18,16 +21,32 @@ char get_key() {
 	return c;
 }
 
-int main() { 
+int init() {
+	srand(time(NULL));
 	ncurses_init();
+}
+
+int deinit() {
+	ncurses_deinit();
+}
+
+
+int main() { 
+	init();
 	board *b = board_new();
 	board_init(b);
-	board_add_random(b);
-	board_print(b);
+	int a;
+	while (1) {
+		a = board_add_random(b);
+		board_print_ncurses(b);
+		usleep(100);
+		if (a == 0) { 
+			break;
+		}
+	}
 	board_free(b); 
-	char c;
-	c = get_key();
-	printw("%c", c);
-	ncurses_free();
+	char c = get_key();
+	//printw("%c", c);
+	deinit();
 	return 0;
 }
