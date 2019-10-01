@@ -18,3 +18,58 @@ for each cell
 65536 arrays possibles up to 2048?
 that's not that much
 
+ok, anyway i think it should try all branches
+(we'll see)
+
+or do a basic game, and add a note to each path taken for that game, like boad before winning is super good, and board before that one is pretty good, and so on
+and if lose, same thing but with negative score
+
+actually, we take a random path (or a non tested one, based on what we have saved)
+and if all tested, we take the best
+and at the end of the game, we add values based on the highest cell value
+
+but by trying the untested one, it is the same than trying all paths, isn't it
+but perhaps that's what i want anyway
+
+not sure of the time that will take
+
+what i know, is once a path is calculated, find a way to save that on disk. perhaps one board is a file (filename? crc?)
+or perhaps a database, but that i'm less willing to do that
+although that would be handy, with one field per cell. easy to do a locate
+
+or perhaps just in memory
+
+how many different arrays possible anyway?
+
+ok, from a board, just try all possibles scenarios for the like 3/4 next moves (assume no added values? a random one?), and find the best move of them.
+
+https://towardsdatascience.com/2048-solving-2048-with-monte-carlo-tree-search-ai-2dbe76894bab
+
+so, maybe the thing wouldbe, for a given state, try:
+all directions
+all possible random added value
+and loop
+till the time to make a decision becomes ridiculous
+
+and assume the worst random value, but how do i know it's the worst?
+
+it depends
+so i end up with branches and stuff, so i could tell which is the worst or best for each type, by putting values to the branches
+and then i should take the path with the best outcome, assuming best direction but worst value random
+unless worst value random are all making me lose, in which case, i should assume for the next worst.
+
+good luck to store / represent all of that for testing / debugging
+
+plus that ain't good anyway
+
+i mean if i'm like 'path is bad, because overall i might lose', i might take another path that is a dead end. only because i assume i will have a bad outcome in the first path.
+Well i should average then?
+i do full random for everythg. well. all cases. and then i check the best average. but i doubt i end up with a nice algo
+
+
+
+
+remove not possible
+color the last added number, to test
+quit button
+automated version?

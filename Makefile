@@ -3,7 +3,7 @@ SOURCE=./
 CFLAGS=-ggdb -rdynamic -funwind-tables -pthread -lncurses
 LIBS=engine.c 
 
-LIST=main
+LIST=human
 
 all: $(LIST)
 
