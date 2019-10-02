@@ -1,9 +1,9 @@
 BIN=./
 SOURCE=./
 CFLAGS=-ggdb -rdynamic -funwind-tables -pthread -lncurses
-LIBS=engine.c 
+LIBS=engine.c bot.c
 
-LIST=human
+LIST=main
 
 all: $(LIST)
 

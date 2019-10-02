@@ -73,3 +73,16 @@ remove not possible
 color the last added number, to test
 quit button
 automated version?
+
+
+seen on 
+https://framagames.org/2048originel/index.html
+
+222 gives 42
+22 2 gives 24
+
+from the beginning:
+remove empty spaces
+each cell merge with next one, unless already merged, and shift everythg
+it's like merge if next, and then reremove all spaces
+

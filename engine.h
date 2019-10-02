@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 typedef struct _board board;
 
 struct _board {
@@ -18,3 +20,6 @@ void board_print_file(FILE *f, board *b);
 int board_full(board *b);
 int board_win(board *b);
 int board_get_max(board *b);
+void board_copy(board *src, board *dst);
+int board_get_sum(board *b); 
+void print_dir(FILE *f, int dir);

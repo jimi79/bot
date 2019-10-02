@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ncurses.h>
+#include <string.h>
 #include "engine.h"
 
 const int BOARD_SIZE = 4;
@@ -21,6 +22,10 @@ board *board_new() {
 	r->win_y = -1;
 	r->win_x = -1;
 	return r; 
+}
+
+void board_copy(board *src, board *dst) {
+	memcpy(dst, src, sizeof(board));
 }
 
 void board_free(board *b) {
@@ -101,10 +106,14 @@ void board_print_file(FILE *f, board *b) {
 		int val;
 		for (j = 0; j < BOARD_SIZE; j++) {
 			val = b->board[i][j];	
+			char c[1] = " ";
+			if ((i == b->last_modified_y) && (j == b->last_modified_x)) {
+				c[0] = '*';
+			}
 			if (val == 0) {
-				fprintf(f, "|       ");
+				fprintf(f, "|      %s", c);
 			} else { 
-				fprintf(f, "| %*d ", space, b->board[i][j]);
+				fprintf(f, "| %*d%s", space, b->board[i][j], c);
 			}
 		}
 		fprintf(f, "|\n");
@@ -179,55 +188,113 @@ int board_move_cell(board *b, int sy, int sx, int dy, int dx) {
 	return res;
 }
 
+void board_print_filename(char *c, board *b) {
+	FILE *f = fopen(c, "a+");
+	board_print_file(f, b);
+	fclose(f);
+}
+
+
+int same_value(board *b, int y, int x, int y2, int x2) {
+	return ((b->board[y][x] != 0) && (b->board[y][x] == b->board[y2][x2]));
+}
+
 int board_move(board *b, int direction) {
-	// 0: up, 1: down, 2: left, 3: right
-	int ok = true;
 	int possible = false;
+
 	if (direction == 0) {
-		for (int i = 1; i < BOARD_SIZE; i++) {
-			for (int j = 0; j < BOARD_SIZE; j++) {
-				ok = true;
-				for (int k = i; k > 0; k--) {
-					ok = board_move_cell(b, k, j, k - 1, j);
-					possible = possible || ok;
-				} 
+		for (int i = 0; i < BOARD_SIZE; i++) {
+			for (int j = 0; j < BOARD_SIZE - 1; j++) {
+				int moved = true;
+				while (moved) {
+					moved = false;
+					for (int k = j; k < BOARD_SIZE - 1; k++) {
+						if ((b->board[k][i] == 0) && (b->board[k+1][i] != 0)) {
+							possible = true;
+							moved = true;
+							b->board[k][i] = b->board[k+1][i];
+							b->board[k+1][i] = 0;
+						}
+					}
+				}
+				if (same_value(b, j, i, j+1, i)) {
+					possible = true;
+					b->board[j][i] = b->board[j][i] * 2;
+					b->board[j+1][i] = 0;
+				}
 			}
-		}
+		} 
 	}
 	if (direction == 1) {
-		for (int i = BOARD_SIZE - 2; i >= 0; i--) {
-			for (int j = 0; j < BOARD_SIZE; j++) {
-				ok = true;
-				for (int k = i; k < BOARD_SIZE - 1; k++) {
-					ok = board_move_cell(b, k, j, k + 1, j);
-					possible = possible || ok;
-				} 
+		for (int i = 0; i < BOARD_SIZE; i++) {
+			for (int j = BOARD_SIZE - 1; j > 0; j--) {
+				int moved = true;
+				while (moved) {
+					moved = false;
+					for (int k = j; k > 0; k--) {
+						if ((b->board[k][i] == 0) && (b->board[k-1][i] != 0)) {
+							possible = true;
+							moved = true;
+							b->board[k][i] = b->board[k-1][i];
+							b->board[k-1][i] = 0;
+						}
+					}
+				}
+				if (same_value(b, j, i, j-1, i)) {
+					possible = true;
+					b->board[j][i] = b->board[j][i] * 2;
+					b->board[j-1][i] = 0;
+				}
 			}
-		}
+		} 
 	}
 	if (direction == 2) {
 		for (int i = 0; i < BOARD_SIZE; i++) {
-			for (int j = 1; j < BOARD_SIZE; j++) {
-				ok = true;
-				for (int k = j; k >= 1; k--) {
-					ok = board_move_cell(b, i, k, i, k - 1);
-					possible = possible || ok;
-				} 
+			for (int j = 0; j < BOARD_SIZE - 1; j++) {
+				int moved = true;
+				while (moved) {
+					moved = false;
+					for (int k = j; k < BOARD_SIZE - 1; k++) {
+						if ((b->board[i][k] == 0) && (b->board[i][k+1] != 0)) {
+							possible = true;
+							moved = true;
+							b->board[i][k] = b->board[i][k+1];
+							b->board[i][k+1] = 0;
+						}
+					}
+				}
+				if (same_value(b, i, j, i, j+1)) {
+					possible = true;
+					b->board[i][j] = b->board[i][j] * 2;
+					b->board[i][j+1] = 0;
+				}
 			}
-		}
-	}
+		} 
+	} 
 	if (direction == 3) {
 		for (int i = 0; i < BOARD_SIZE; i++) {
-			for (int j = BOARD_SIZE - 1; j >= 0; j--) {
-				ok = true;
-				for (int k = j; k < BOARD_SIZE - 1; k++) {
-					ok = board_move_cell(b, i, k, i, k + 1);
-					possible = possible || ok;
-				} 
+			for (int j = BOARD_SIZE - 1; j > 0; j--) {
+				int moved = true;
+				while (moved) {
+					moved = false;
+					for (int k = j; k > 0; k--) {
+						if ((b->board[i][k] == 0) && (b->board[i][k-1] != 0)) {
+							possible = true;
+							moved = true;
+							b->board[i][k] = b->board[i][k-1];
+							b->board[i][k-1] = 0;
+						}
+					}
+				}
+				if (same_value(b, i, j, i, j-1)) {
+					possible = true;
+					b->board[i][j] = b->board[i][j] * 2;
+					b->board[i][j-1] = 0;
+				}
 			}
-		}
+		} 
 	} 
-	return possible;
+	return possible; 
 }
 
 int board_get_max(board *b) {
@@ -239,6 +306,32 @@ int board_get_max(board *b) {
 			}
 		}
 	}
-	return max;
-	
+	return max; 
+}
+
+int board_get_sum(board *b) {
+	int sum = 0;
+	for (int i = 0; i < BOARD_SIZE; i++) {
+		for (int j = 0; j < BOARD_SIZE; j++) {
+			sum += b->board[i][j];
+		}
+	}
+	return sum; 
+}
+
+void dir_to_str(int move, char *smove) {
+	switch (move)
+	{
+		case -1: { strncpy(smove, "none", 5); } break;
+		case 0: { strncpy(smove, "up", 3); } break;
+		case 1: { strncpy(smove, "down", 5); } break;
+		case 2: { strncpy(smove, "left", 5); } break;
+		case 3: { strncpy(smove, "right", 6); } break;
+	}
+}
+
+void print_dir(FILE *f, int dir) {
+	char sdir[20];
+	dir_to_str(dir, sdir);
+	fprintf(f, "direction = %s\n", sdir); 
 }
