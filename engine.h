@@ -1,4 +1,7 @@
+#include <stdlib.h>
 #include <stdio.h>
+#include <ncurses.h>
+#include <string.h>
 
 typedef struct _board board;
 
@@ -13,7 +16,7 @@ struct _board {
 board *board_new();
 void board_init(board *b);
 void board_free(board *b);
-void board_print(board *b, int y, int x);
+void board_print_win(board *b, int y, int x);
 int board_add(board *b);
 int board_move(board *b, int direction);
 void board_print_file(FILE *f, board *b);

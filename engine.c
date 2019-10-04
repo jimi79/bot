@@ -1,11 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <ncurses.h>
-#include <string.h>
 #include "engine.h"
-
-const int BOARD_SIZE = 4;
-const int BOARD_WIN = 2048;
+#include "const.h"
 
 void board_init(board *b) {
 	for (int i = 0; i < BOARD_SIZE; i++) {
@@ -48,7 +42,7 @@ int board_win(board *b) {
 	return win;
 }
 
-void board_print(board *b, int y, int x) {
+void board_print_win(board *b, int y, int x) {
 	int i, j;
 	int space = 5;
 	char c[9] = "--------";
@@ -106,7 +100,7 @@ void board_print_file(FILE *f, board *b) {
 		int val;
 		for (j = 0; j < BOARD_SIZE; j++) {
 			val = b->board[i][j];	
-			char c[1] = " ";
+			char c[2] = " ";
 			if ((i == b->last_modified_y) && (j == b->last_modified_x)) {
 				c[0] = '*';
 			}
@@ -201,7 +195,8 @@ int same_value(board *b, int y, int x, int y2, int x2) {
 
 int board_move(board *b, int direction) {
 	int possible = false;
-
+	b->last_modified_y = -1;
+	b->last_modified_x = -1; 
 	if (direction == 0) {
 		for (int i = 0; i < BOARD_SIZE; i++) {
 			for (int j = 0; j < BOARD_SIZE - 1; j++) {

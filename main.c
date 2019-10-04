@@ -16,7 +16,6 @@ void write_log(char *s) {
 
 
 void ncurses_init() {
-	srand(time(NULL));
 	initscr();
 	cbreak();
 	noecho();
@@ -87,6 +86,7 @@ void user_move(board *b, int *quit) {
 }
 
 int human() { 
+	srand(time(NULL));
 	ncurses_init();
 	board *b = board_new();
 	board_init(b);
@@ -94,11 +94,11 @@ int human() {
 	int quit = false;
 	while ((!board_full(b)) && (!quit) && (!board_win(b))) {
 		board_add(b);
-		board_print(b, 0, 0);
+		board_print_win(b, 0, 0);
 		user_move(b, &quit);
 	} 
 	if (board_win(b)) {
-		board_print(b, 0, 0);
+		board_print_win(b, 0, 0);
 		move(10, 0);
 		printw("won, press a key to exit\n");
 		getch();
@@ -113,19 +113,23 @@ int human() {
 
 int bot() {
 	srand(time(NULL));
+	ncurses_init();
 	board *b = board_new();
 	board_init(b);
 	FILE *log = fopen("test", "w"); 
 	int ok = true;
 	int dir;
-	while ((!board_full(b)) && (!board_win(b))) {
+	while (!board_full(b)) {
 		board_add(b);
 		board_print_file(log, b); 
-		dir = play_2(b, log);
-		print_dir(log, dir);
+		board_print_win(b, 0, 0);
+		dir = play_3(b, log);
+		refresh(); 
 	}
 	fprintf(log, "max = %d\n", board_get_max(b));
 	fclose(log);
+	getch();
+	ncurses_deinit();
 }	
 
 int test_board(board *b) {
@@ -144,11 +148,11 @@ int test_board(board *b) {
 	board_move(b3, 1);
 	board_move(b4, 2);
 	board_move(b5, 3);
-	board_print(b, 15, 50);
-	board_print(b2, 0, 50); 
-	board_print(b3, 30, 50); 
-	board_print(b4, 15, 0); 
-	board_print(b5, 15, 100); 
+	board_print_win(b, 15, 50);
+	board_print_win(b2, 0, 50); 
+	board_print_win(b3, 30, 50); 
+	board_print_win(b4, 15, 0); 
+	board_print_win(b5, 15, 100); 
 	board_free(b5);
 	board_free(b4);
 	board_free(b3);
@@ -201,13 +205,51 @@ int test_board_2() {
 	board_free(b);
 }
 
+int test_bot() {
+	board *b = board_new();
+	board_init(b);
+	FILE *log = fopen("test", "w");
+
+	b->board[0][0] = 4;
+	b->board[0][1] = 0;
+	b->board[0][2] = 2;
+	b->board[0][3] = 0;
+	b->board[1][0] = 4;
+	b->board[1][1] = 0;
+	b->board[1][2] = 0;
+	b->board[1][3] = 2;
+	b->board[2][0] = 0;
+	b->board[2][1] = 0;
+	b->board[2][2] = 2;
+	b->board[2][3] = 0;
+	b->board[3][0] = 2;
+	b->board[3][1] = 2;
+	b->board[3][2] = 2;
+	b->board[3][3] = 2;
+
+	play_3(b, log);
+	fclose(log); 
+}
+
 int test() {
-	test_board_1();
-	test_board_2();
+	srand(time(NULL));
+	board *b = board_new();
+	board_init(b);
+	FILE *log = fopen("test", "w"); 
+	int ok = true;
+	int dir;
+	while (!board_full(b)) {
+		board_add(b);
+		board_print_file(log, b); 
+		dir = play_3(b, log);
+	}
+	fprintf(log, "max = %d\n", board_get_max(b));
+	fclose(log);
 }
 
 int main(int argc, char *argv[]) {
-	if (argc == 1) {
+	bot();
+	/*if (argc == 1) {
 		human();
 	} else {
 		if (!strcmp("bot", argv[1])) {
@@ -216,5 +258,5 @@ int main(int argc, char *argv[]) {
 		if (!strcmp("test", argv[1])) {
 			test();
 		}
-	} 
+	} */
 }
