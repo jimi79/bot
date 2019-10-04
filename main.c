@@ -248,15 +248,11 @@ int test() {
 }
 
 int main(int argc, char *argv[]) {
-	bot();
-	/*if (argc == 1) {
-		human();
+	if (argc == 1) {
+		bot();
 	} else {
-		if (!strcmp("bot", argv[1])) {
-			bot();
-		}
-		if (!strcmp("test", argv[1])) {
-			test();
-		}
-	} */
+		if (!strcmp("bot", argv[1])) { bot(); }
+		if (!strcmp("test", argv[1])) { test(); }
+		if (!strcmp("human", argv[1])) { human(); }
+	}
 }

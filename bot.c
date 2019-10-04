@@ -181,7 +181,6 @@ int play_3_best_dir_thread_launcher(board *b, FILE *log) {
 		started[i] = false;
 		if (board_move(th_par[i].b, i)) {
 			started[i] = true;
-			fprintf(log, "Creating thread for direction %d\n", i);
 			pthread_create(&th[i], NULL, play_3_best_dir_thread, &th_par[i]);
 		}
 	}
@@ -194,16 +193,12 @@ int play_3_best_dir_thread_launcher(board *b, FILE *log) {
 	double best_value = th_par[0].value;
 	double value;
 	int direction = 0;
-	fprintf(log, "Value is %0.2f for dir %d\n", th_par[0].value, th_par[0].direction);
 	for (int i = 1; i < 4; i++) {
-		fprintf(log, "Value is %0.2f for dir %d\n", th_par[i].value, th_par[i].direction);
 		if (th_par[i].value > best_value) {
 			direction = th_par[i].direction;
 			best_value = th_par[i].value;
 		} 
 	}
-	fprintf(log, "direction choosen: %d\n", direction);
-	fflush(log);
 	return direction;
 }
 
@@ -212,8 +207,6 @@ int play_3(board *b, FILE *log) {
 	double val;
 	play_3_best_dir(b, log, &dir, &val, 0);
 	dir = play_3_best_dir_thread_launcher(b, log);
-	//board_print_file(log, b);
 	board_move(b, dir);
-	//board_print_file(log, b);
 }
 
