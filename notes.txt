@@ -86,3 +86,14 @@ remove empty spaces
 each cell merge with next one, unless already merged, and shift everythg
 it's like merge if next, and then reremove all spaces
 
+
+--
+
+we do the four move
+for each, we add a cell
+and then we do the move
+
+we do a move, then we add a cell
+in adding cells
+	if adding a cell isn't possible, we return the score
+	if possible, we then redo the direction thingy

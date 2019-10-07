@@ -111,25 +111,33 @@ int human() {
 	return 0;
 }
 
-int bot() {
+int bot(int ncurses) {
 	srand(time(NULL));
-	ncurses_init();
+	if (ncurses) {
+		ncurses_init();
+	}
 	board *b = board_new();
 	board_init(b);
-	FILE *log = fopen("test", "w"); 
 	int ok = true;
 	int dir;
 	while (!board_full(b)) {
 		board_add(b);
-		board_print_file(log, b); 
-		board_print_win(b, 0, 0);
-		dir = play_3(b, log);
+		if (ncurses) {
+			board_print_win(b, 0, 0);
+		} else {
+			board_print_file(stdout, b); 
+		}
+		dir = play(b);
 		refresh(); 
 	}
-	fprintf(log, "max = %d\n", board_get_max(b));
-	fclose(log);
-	getch();
-	ncurses_deinit();
+	if (ncurses) {
+		move(12,0);
+		printw("max = %d\n", board_get_max(b));
+		getch();
+		ncurses_deinit();
+	} else { 
+		printf("max = %d\n", board_get_max(b));
+	}
 }	
 
 int test_board(board *b) {
@@ -227,31 +235,65 @@ int test_bot() {
 	b->board[3][2] = 2;
 	b->board[3][3] = 2;
 
-	play_3(b, log);
+	play(b);
 	fclose(log); 
 }
 
 int test() {
-	srand(time(NULL));
 	board *b = board_new();
-	board_init(b);
-	FILE *log = fopen("test", "w"); 
-	int ok = true;
-	int dir;
-	while (!board_full(b)) {
-		board_add(b);
-		board_print_file(log, b); 
-		dir = play_3(b, log);
+
+/*
+---------------------------------
+|     8 |    16 |     4 |     2*|
+---------------------------------
+|     4 |   512 |    64 |     8 |
+---------------------------------
+|    64 |  2048 |   128 |    32 |
+---------------------------------
+|    16 |   256 |     4 |     4 |
+---------------------------------
+*/
+	b->board[0][0] = 0;
+	b->board[0][1] = 0;
+	b->board[0][2] = 0;
+	b->board[0][3] = 0;
+	b->board[1][0] = 4;
+	b->board[1][1] = 512;
+	b->board[1][2] = 64;
+	b->board[1][3] = 8;
+	b->board[2][0] = 64;
+	b->board[2][1] = 2048;
+	b->board[2][2] = 128;
+	b->board[2][3] = 32;
+	b->board[3][0] = 16;
+	b->board[3][1] = 256;
+	b->board[3][2] = 4;
+	b->board[3][3] = 4;
+
+	
+
+	for (int i = 0; i < 4; i++) {
+		board *b2 = board_new();
+		board_copy(b, b2);
+		if (board_move(b2, i)) {
+		}
+		board_free(b2);
 	}
-	fprintf(log, "max = %d\n", board_get_max(b));
+	FILE *log = fopen("test", "w");
+	int dir = play(b);
 	fclose(log);
+		
+	board_print_file(stdout, b);
+	board_free(b);
+
 }
 
 int main(int argc, char *argv[]) {
 	if (argc == 1) {
-		bot();
+		bot(true);
+		//test();
 	} else {
-		if (!strcmp("bot", argv[1])) { bot(); }
+		if (!strcmp("bot", argv[1])) { bot(true); }
 		if (!strcmp("test", argv[1])) { test(); }
 		if (!strcmp("human", argv[1])) { human(); }
 	}
