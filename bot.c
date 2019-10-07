@@ -2,6 +2,8 @@
 #include "const.h"
 #include "pthread.h"
 
+int max_depth;
+
 int free_space(board *b) {
 	int res = 0;
 	for (int i = 0; i < BOARD_SIZE; i++) {
@@ -35,7 +37,7 @@ int play_try_move(board *b, int direction, int added_cells) {
 	//printf("trying move %d\n", direction);
 	board_copy(b, b2);
 	if (board_move(b2, direction)) {
-		if (!board_full(b2) && (added_cells < MAX_DEPTH) && (board_get_max(b) >= 16)) {
+		if (!board_full(b2) && (added_cells < max_depth) && (board_get_max(b) >= 16)) {
 			val = play_add_cells(b2, added_cells);
 		} else {
 			val = play_get_value(b2);
@@ -67,9 +69,9 @@ double play_add_cells(board *b, int added_cells) {
 	double count = 0;
 	int free = free_space(b);
 	int ii = 0;
-	int inc = free / 3; 
- 	if (inc == 0) { inc = 1; }
-	//int inc = 1;
+	//int inc = free / 3; 
+ 	//if (inc == 0) { inc = 1; } // try with random values, but not for all cells
+	int inc = 1;
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			if (b->board[i][j] == 0) {
@@ -149,6 +151,11 @@ int play_thread_launcher(board *b) {
 int play(board *b) {
 	int dir;
 	double val;
+	int f = free_space(b);
+	max_depth = 3; // tree depth
+	if (f < 6) {
+		max_depth = 4; 
+	} 
 	dir = play_thread_launcher(b);
 	board_move(b, dir);
 }

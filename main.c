@@ -135,9 +135,9 @@ int bot(int ncurses) {
 		printw("max = %d\n", board_get_max(b));
 		getch();
 		ncurses_deinit();
-	} else { 
-		printf("max = %d\n", board_get_max(b));
 	}
+	board_print_file(stdout, b);
+	printf("max = %d\n", board_get_max(b));
 }	
 
 int test_board(board *b) {
