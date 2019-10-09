@@ -7,6 +7,7 @@ void board_init(board *b) {
 			b->board[i][j] = 0;
 		}
 	}
+	strncpy(b->path, "", 1);
 }
 
 board *board_new() {
@@ -20,6 +21,7 @@ board *board_new() {
 
 void board_copy(board *src, board *dst) {
 	memcpy(dst, src, sizeof(board));
+	//strncpy(dst->path, "", 1); // empty string: \0
 }
 
 void board_free(board *b) {
@@ -323,6 +325,18 @@ void dir_to_str(int move, char *smove) {
 		case 2: { strncpy(smove, "left", 5); } break;
 		case 3: { strncpy(smove, "right", 6); } break;
 	}
+}
+
+void dir_to_arrow(int move, char *smove) {
+	switch (move)
+	{
+		case -1: { strncpy(smove, "", 1); } break;
+		case 0: { strncpy(smove, "↑", sizeof("↑") + 1); } break;
+		case 1: { strncpy(smove, "↓", sizeof("↓") + 1); } break;
+		case 2: { strncpy(smove, "←", sizeof("←") + 1); } break;
+		case 3: { strncpy(smove, "→", sizeof("→") + 1); } break;
+	}
+
 }
 
 void print_dir(FILE *f, int dir) {

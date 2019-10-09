@@ -120,15 +120,33 @@ int bot(int ncurses) {
 	board_init(b);
 	int ok = true;
 	int dir;
+	char smove[4][6];
+	/*strncpy(smove[0], "↑", sizeof("↑" + 1));
+	strncpy(smove[1], "↓", sizeof("↓" + 1));
+	strncpy(smove[2], "←", sizeof("←" + 1));
+	strncpy(smove[3], "→", sizeof("→" + 1)); */ // not working in ncurses, check why
+
+	strncpy(smove[0], "^", sizeof("^" + 1));
+	strncpy(smove[1], "v", sizeof("v" + 1));
+	strncpy(smove[2], "<", sizeof("<" + 1));
+	strncpy(smove[3], ">", sizeof(">" + 1));
+
 	while (!board_full(b)) {
 		board_add(b);
 		if (ncurses) {
 			board_print_win(b, 0, 0);
 		} else {
 			board_print_file(stdout, b); 
+			fflush(stdout);
 		}
 		dir = play(b);
-		refresh(); 
+		if (ncurses) {
+			move(11,0);
+			printw("%s", smove[dir]); 
+			refresh(); 
+		} else { 
+			fprintf(stdout, "direction: %s\n", smove[dir]); 
+		}
 	}
 	if (ncurses) {
 		move(12,0);
@@ -253,35 +271,26 @@ int test() {
 |    16 |   256 |     4 |     4 |
 ---------------------------------
 */
-	b->board[0][0] = 0;
-	b->board[0][1] = 0;
-	b->board[0][2] = 0;
-	b->board[0][3] = 0;
-	b->board[1][0] = 4;
-	b->board[1][1] = 512;
-	b->board[1][2] = 64;
-	b->board[1][3] = 8;
-	b->board[2][0] = 64;
-	b->board[2][1] = 2048;
-	b->board[2][2] = 128;
-	b->board[2][3] = 32;
-	b->board[3][0] = 16;
-	b->board[3][1] = 256;
-	b->board[3][2] = 4;
-	b->board[3][3] = 4;
+	b->board[0][0] = 16;
+	b->board[0][1] = 16;
+	b->board[0][2] = 16;
+	b->board[0][3] = 16;
+	b->board[1][0] = 16;
+	b->board[1][1] = 16;
+	b->board[1][2] = 16;
+	b->board[1][3] = 16;
+	b->board[2][0] = 16;
+	b->board[2][1] = 16;
+	b->board[2][2] = 16;
+	b->board[2][3] = 16;
+	b->board[3][0] = 0;
+	b->board[3][1] = 0;
+	b->board[3][2] = 0;
+	b->board[3][3] = 0;
 
 	
-
-	for (int i = 0; i < 4; i++) {
-		board *b2 = board_new();
-		board_copy(b, b2);
-		if (board_move(b2, i)) {
-		}
-		board_free(b2);
-	}
-	FILE *log = fopen("test", "w");
+	board_print_file(stdout, b);
 	int dir = play(b);
-	fclose(log);
 		
 	board_print_file(stdout, b);
 	board_free(b);
@@ -290,7 +299,7 @@ int test() {
 
 int main(int argc, char *argv[]) {
 	if (argc == 1) {
-		bot(true);
+		bot(false);
 		//test();
 	} else {
 		if (!strcmp("bot", argv[1])) { bot(true); }

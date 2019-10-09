@@ -11,6 +11,7 @@ struct _board {
 	int last_modified_y; 
 	int win_y;
 	int win_x;
+	char path[10]; 
 };
 
 board *board_new();
