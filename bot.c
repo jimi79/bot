@@ -11,6 +11,7 @@
 #define CALC_ALL 2
 #define CALC_WRONG 3
 #define CALC_CORNERS 4
+#define CALC_OLD 5
 
 
 
@@ -36,13 +37,15 @@ double play_add_cells(board *b, int added_cells);
 double play_get_value(board *b) {
 
 	start_clock(c_get_value);
-	int res = 0;
+	double res = 0;
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
-			res = res + (b->board[i][j] == 0 ? 128 * 128 : b->board[i][j] * b->board[i][j]);
+			if (b->board[i][j] == 0) {
+				res = res + 1;
+			}
 		}
 	}
-	end = clock();
+	//res = res + board_get_max(b);
 
 	end_clock(c_get_value);
 
@@ -52,9 +55,9 @@ double play_get_value(board *b) {
 void print_state(board *b, double val, int added_cells) {
 	printf("Level: %d\n", added_cells);
 	printf("Path: %s\n", b->path);
+	printf("score: %0.2f\n", val);
 	printf("Board:\n");
 	board_print_file(stdout, b);
-	printf("score: %0.2f\n", val);
 }
 
 double play_try_move(board *b, int direction, int added_cells) { 
@@ -77,19 +80,16 @@ double play_try_move(board *b, int direction, int added_cells) {
 	print_state(b2, val, added_cells);
 #endif
 	board_free(b2);
-	//printf("trying move %d, value = %0.2f\n", direction, val);
 	return val;
 }
 
 double play_loop_move(board *b, int added_cells) {
-	double best_val = -1;
-	int best_dir = -1;
+	double best_val = 0;
 	double val;
 	for (int i = 0; i < 4; i++) {
 		val = play_try_move(b, i, added_cells);
 		if (val > best_val) {
 			best_val = val;
-			best_dir = i; 
 		} 
 	} 
 	return best_val;
@@ -102,12 +102,9 @@ double play_add_cell(board *b, int added_cells, int y, int x, int cell_value) {
 	b2->board[y][x] = cell_value;
 	b2->last_modified_y = y;
 	b2->last_modified_x = x;
-	int best_dir;
-	double best_score;
-	double board_value = play_loop_move(b2, added_cells + 1); 
+	double value = play_loop_move(b2, added_cells + 1); 
 	board_free(b2);
-	return board_value;
-
+	return value; 
 }
 
 double play_add_cells(board *b, int added_cells) { 
@@ -117,8 +114,6 @@ double play_add_cells(board *b, int added_cells) {
 	int calc = CALC_OLD; 
 	int x, y; 
 	if (calc == CALC_OLD) {
-		double sum = 0;
-		double count = 0;
 		int free = free_space(b);
 		int ii = 0;
 		int inc = free / 2; 
@@ -129,7 +124,7 @@ double play_add_cells(board *b, int added_cells) {
 					ii++;
 					if (ii % inc == 0) {
 						for (int k = 2; k <= 4; k = k + 2) {
-							sum = sum + play_add_cell(b, i, j, k);
+							sum = sum + play_add_cell(b, added_cells, i, j, k);
 							count++;
 						}
 					}
@@ -216,11 +211,10 @@ double play_add_cells(board *b, int added_cells) {
 			count = count + 2;
 		}
 
-	}
-
-
+	} 
 	if (count != 0) {
-		return (sum / count);
+		double val = sum / count;
+		return val;
 	} else {
 		return 0;
 	} 
@@ -238,7 +232,8 @@ pthread_mutex_t mutex_write_res = PTHREAD_MUTEX_INITIALIZER;
 
 void *play_thread(void *args) {
 	struct t_th_par *th_par = (struct t_th_par *) args;
-	th_par->value = play_try_move(th_par->b, th_par->direction, 0);
+	double value = play_try_move(th_par->b, th_par->direction, 0);
+	th_par->value = value; 
 }
 
 int play_thread_launcher(board *b) {
@@ -263,21 +258,23 @@ int play_thread_launcher(board *b) {
 		board_free(th_par[i].b);
 	} 
 	double best_value = th_par[0].value;
+	printf("%0.2f, ", th_par[0].value);
 	double value;
 	int direction = 0;
 	for (int i = 1; i < 4; i++) {
+		printf("%0.2f, ", th_par[i].value);
 		if (th_par[i].value > best_value) {
 			direction = th_par[i].direction;
 			best_value = th_par[i].value;
 		} 
 	}
+	printf("\n");
 	return direction;
 }
 
 int play(board *b) {
 	int dir;
 	double val;
-	int f = free_space(b);
 	max_depth = 4;
 	dir = play_thread_launcher(b);
 	board_move(b, dir);

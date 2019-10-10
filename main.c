@@ -159,136 +159,37 @@ int bot(int ncurses) {
 	printf("max = %d\n", board_get_max(b));
 }	
 
-int test_board(board *b) {
-	ncurses_init();
-	srand(time(NULL));
-	board *b2 = board_new();
-	board *b3 = board_new();
-	board *b4 = board_new();
-	board *b5 = board_new();
-	board_copy(b, b2);
-	board_copy(b, b3);
-	board_copy(b, b4);
-	board_copy(b, b5);
-
-	board_move(b2, 0);
-	board_move(b3, 1);
-	board_move(b4, 2);
-	board_move(b5, 3);
-	board_print_win(b, 15, 50);
-	board_print_win(b2, 0, 50); 
-	board_print_win(b3, 30, 50); 
-	board_print_win(b4, 15, 0); 
-	board_print_win(b5, 15, 100); 
-	board_free(b5);
-	board_free(b4);
-	board_free(b3);
-	board_free(b2);
-	getch();
-	ncurses_deinit();
-}
-
-int test_board_1() {
-	board *b = board_new();
-	b->board[0][0] = 0;
-	b->board[0][1] = 0;
-	b->board[0][2] = 0;
-	b->board[0][3] = 0;
-	b->board[1][0] = 0;
-	b->board[1][1] = 0;
-	b->board[1][2] = 0;
-	b->board[1][3] = 0;
-	b->board[2][0] = 0;
-	b->board[2][1] = 0;
-	b->board[2][2] = 2;
-	b->board[2][3] = 0;
-	b->board[3][0] = 0;
-	b->board[3][1] = 0;
-	b->board[3][2] = 0;
-	b->board[3][3] = 0;
-	test_board(b);
-	board_free(b);
-}
-
-int test_board_2() {
-	board *b = board_new();
-	b->board[0][0] = 4;
-	b->board[0][1] = 4;
-	b->board[0][2] = 4;
-	b->board[0][3] = 4;
-	b->board[1][0] = 4;
-	b->board[1][1] = 4;
-	b->board[1][2] = 4;
-	b->board[1][3] = 4;
-	b->board[2][0] = 4;
-	b->board[2][1] = 4;
-	b->board[2][2] = 4;
-	b->board[2][3] = 4;
-	b->board[3][0] = 4;
-	b->board[3][1] = 4;
-	b->board[3][2] = 4;
-	b->board[3][3] = 4;
-	test_board(b);
-	board_free(b);
-}
-
-int test_bot() {
-	board *b = board_new();
-	board_init(b);
-	FILE *log = fopen("test", "w");
-
-	b->board[0][0] = 4;
-	b->board[0][1] = 0;
-	b->board[0][2] = 2;
-	b->board[0][3] = 0;
-	b->board[1][0] = 4;
-	b->board[1][1] = 0;
-	b->board[1][2] = 0;
-	b->board[1][3] = 2;
-	b->board[2][0] = 0;
-	b->board[2][1] = 0;
-	b->board[2][2] = 2;
-	b->board[2][3] = 0;
-	b->board[3][0] = 2;
-	b->board[3][1] = 2;
-	b->board[3][2] = 2;
-	b->board[3][3] = 2;
-
-	play(b);
-	fclose(log); 
-}
-
 int test() {
 	board *b = board_new();
 
 /*
-here---------------------------------
-|    32 |    32 |    32 |    32 |
 ---------------------------------
-|    16 |    16 |    16 |    16 |
+|    16 |     8 |    16 |     8 |
 ---------------------------------
-|     1 |     1 |     1 |     1 |
+|     8 |     2 |    16 |     4 |
 ---------------------------------
-|     1 |     1 |     1 |     1 |
+|     4 |     8 |     2 |     2 |
 ---------------------------------
-L
+|     2 |     4 |     4*|     4 |
+---------------------------------
+
 */
 	b->board[0][0] = 16;
-	b->board[0][1] = 16;
+	b->board[0][1] = 8;
 	b->board[0][2] = 16;
-	b->board[0][3] = 16;
-	b->board[1][0] = 16;
-	b->board[1][1] = 16;
+	b->board[0][3] = 8;
+	b->board[1][0] = 8;
+	b->board[1][1] = 2;
 	b->board[1][2] = 16;
-	b->board[1][3] = 16;
-	b->board[2][0] = 16;
-	b->board[2][1] = 16;
-	b->board[2][2] = 16;
-	b->board[2][3] = 16;
-	b->board[3][0] = 0;
-	b->board[3][1] = 0;
-	b->board[3][2] = 0;
-	b->board[3][3] = 0;
+	b->board[1][3] = 4;
+	b->board[2][0] = 4;
+	b->board[2][1] = 8;
+	b->board[2][2] = 2;
+	b->board[2][3] = 2;
+	b->board[3][0] = 2;
+	b->board[3][1] = 4;
+	b->board[3][2] = 4;
+	b->board[3][3] = 4;
 
 	
 	board_print_file(stdout, b);
