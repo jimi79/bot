@@ -1,5 +1,7 @@
+#include <time.h>
 #include "engine.h"
 #include "const.h"
+#include "clock.h"
 
 void board_init(board *b) {
 	for (int i = 0; i < BOARD_SIZE; i++) {
@@ -120,6 +122,10 @@ void board_print_file(FILE *f, board *b) {
 	fprintf(f, "-\n");
 } 
 
+void board_print(board *b) {
+	board_print_file(stdout, b);
+}
+
 int board_add(board *b) {
 	int size = 0;
 	int array[BOARD_SIZE * BOARD_SIZE];
@@ -160,30 +166,6 @@ int board_full(board *b) {
 
 }
 
-int board_move_cell(board *b, int sy, int sx, int dy, int dx) {
-	int res;
-	b->last_modified_y = -1;
-	b->last_modified_x = -1;
-	if (b->board[sy][sx] == 0) {
-		res = false;
-	} else {
-		if (b->board[dy][dx] == 0) {
-			b->board[dy][dx] = b->board[sy][sx];
-			b->board[sy][sx] = 0;
-			res = 1;
-		} else {
-			if (b->board[dy][dx] == b->board[sy][sx]) {
-				b->board[dy][dx] = b->board[dy][dx] * 2;
-				b->board[sy][sx] = 0;
-				res = 1;
-			} else {
-				res = 0;
-			}
-		}
-	}
-	return res;
-}
-
 void board_print_filename(char *c, board *b) {
 	FILE *f = fopen(c, "a+");
 	board_print_file(f, b);
@@ -192,10 +174,11 @@ void board_print_filename(char *c, board *b) {
 
 
 int same_value(board *b, int y, int x, int y2, int x2) {
-	return ((b->board[y][x] != 0) && (b->board[y][x] == b->board[y2][x2]));
+	return ((b->board[y][x] > 1) && (b->board[y][x] == b->board[y2][x2]));
 }
 
-int board_move(board *b, int direction) {
+int board_move(board *b, int direction) { 
+	start_clock(c_move);
 	int possible = false;
 	b->last_modified_y = -1;
 	b->last_modified_x = -1; 
@@ -291,6 +274,7 @@ int board_move(board *b, int direction) {
 			}
 		} 
 	} 
+	end_clock(c_move);
 	return possible; 
 }
 

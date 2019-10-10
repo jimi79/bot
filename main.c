@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "engine.h"
 #include "bot.h"
+#include "clock.h"
 
 void write_log(char *s) {
 	FILE *f;
@@ -261,15 +262,16 @@ int test() {
 	board *b = board_new();
 
 /*
+here---------------------------------
+|    32 |    32 |    32 |    32 |
 ---------------------------------
-|     8 |    16 |     4 |     2*|
+|    16 |    16 |    16 |    16 |
 ---------------------------------
-|     4 |   512 |    64 |     8 |
+|     1 |     1 |     1 |     1 |
 ---------------------------------
-|    64 |  2048 |   128 |    32 |
+|     1 |     1 |     1 |     1 |
 ---------------------------------
-|    16 |   256 |     4 |     4 |
----------------------------------
+L
 */
 	b->board[0][0] = 16;
 	b->board[0][1] = 16;
@@ -299,8 +301,10 @@ int test() {
 
 int main(int argc, char *argv[]) {
 	if (argc == 1) {
+		init_clocks();
 		bot(false);
-		//test();
+	//	test();
+		print_clocks();
 	} else {
 		if (!strcmp("bot", argv[1])) { bot(true); }
 		if (!strcmp("test", argv[1])) { test(); }

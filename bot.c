@@ -1,10 +1,21 @@
+#include <time.h>
 #include "engine.h"
 #include "const.h"
 #include "pthread.h"
 #include "math.h"
+#include "clock.h"
 
-#define edges
 //#define debug
+
+#define CALC_EDGES 1
+#define CALC_ALL 2
+#define CALC_WRONG 3
+#define CALC_CORNERS 4
+
+
+
+
+
 
 int max_depth;
 
@@ -23,14 +34,18 @@ int free_space(board *b) {
 double play_add_cells(board *b, int added_cells);
 
 double play_get_value(board *b) {
+
+	start_clock(c_get_value);
 	int res = 0;
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
-			if (b->board[i][j] == 0) {
-				res = res + 1;
-			}
+			res = res + (b->board[i][j] == 0 ? 128 * 128 : b->board[i][j] * b->board[i][j]);
 		}
 	}
+	end = clock();
+
+	end_clock(c_get_value);
+
 	return res;
 }
 
@@ -56,7 +71,7 @@ double play_try_move(board *b, int direction, int added_cells) {
 			val = play_get_value(b2);
 		}
 	} else { 
-		val = 0; // not possible
+		val = play_get_value(b2);
 	}
 #if defined debug
 	print_state(b2, val, added_cells);
@@ -97,67 +112,112 @@ double play_add_cell(board *b, int added_cells, int y, int x, int cell_value) {
 
 double play_add_cells(board *b, int added_cells) { 
 	double sum = 0;
-	int count = 0;
-	//int free = free_space(b);
-
-
-#if defined edges 
-	int x, y;
-	for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
-		x = i % BOARD_SIZE;
-		y = i / BOARD_SIZE;
-		if (b->board[y][x] == 0) {
-			sum = sum + play_add_cell(b, added_cells, y, x, 2) + play_add_cell(b, added_cells, y, x, 4); 
-			count = count + 2;
-		}
+	int count = 0; 
+	//int calc = added_cells < 2 ? CALC_ALL : CALC_CORNERS;
+	int calc = CALC_OLD; 
+	int x, y; 
+	if (calc == CALC_OLD) {
+		double sum = 0;
+		double count = 0;
+		int free = free_space(b);
+		int ii = 0;
+		int inc = free / 2; 
+		if (inc == 0) { inc = 1; }
+		for (int i = 0; i < BOARD_SIZE; i++) {
+			for (int j = 0; j < BOARD_SIZE; j++) {
+				if (b->board[i][j] == 0) {
+					ii++;
+					if (ii % inc == 0) {
+						for (int k = 2; k <= 4; k = k + 2) {
+							sum = sum + play_add_cell(b, i, j, k);
+							count++;
+						}
+					}
+				}
+			}
+		} 
 	} 
-	if (count < 10) {
+	if (calc == CALC_EDGES) {
+#ifdef debug
+		printf("edges\n");
+#endif 
+		for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+			x = i % BOARD_SIZE;
+			y = i / BOARD_SIZE;
+			if (b->board[y][x] == 0) {
+				sum = sum + play_add_cell(b, added_cells, y, x, 2) + play_add_cell(b, added_cells, y, x, 4); 
+				count = count + 2;
+			}
+		} 
+		if (count == 0) {
+			for (int i = 1; i < BOARD_SIZE - 1; i++) {
+				for (int j = 1; j < BOARD_SIZE - 1; j++) {
+					if (b->board[i][j] == 0) {
+						sum = sum + play_add_cell(b, added_cells, i, j, 2) + play_add_cell(b, added_cells, i, j, 4); 
+						count = count + 2;
+					}
+				}
+			} 
+		}
+	}
+	if (calc == CALC_ALL) {
+		int j;
+		int val;
+		for (int i = 0; i < BOARD_SIZE * BOARD_SIZE * 2; i++) {
+			val = (i % 2 + 1) * 2;
+			j = i>>1;
+			x = j % BOARD_SIZE;
+			y = j / BOARD_SIZE;
+			if (b->board[y][x] != 0) {
+				sum = sum + play_add_cell(b, added_cells, y, x, val); 
+				count++;
+			}
+		} 
+	}
+	if (calc == CALC_WRONG) {
+		board *b2 = board_new();
+		board_copy(b, b2);
+		int j;
+		int val;
+		for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+			x = i % BOARD_SIZE;
+			y = i / BOARD_SIZE;
+			if (b2->board[y][x] == 0) {
+				b2->board[y][x] = 1;
+			}
+		} 
+		sum = sum + play_loop_move(b2, added_cells + 1); 
+		count++;
+		board_free(b2);
+	}
+	if (calc == CALC_CORNERS) {
 		for (int i = 1; i < BOARD_SIZE - 1; i++) {
 			for (int j = 1; j < BOARD_SIZE - 1; j++) {
 				if (b->board[i][j] == 0) {
 					sum = sum + play_add_cell(b, added_cells, i, j, 2) + play_add_cell(b, added_cells, i, j, 4); 
 					count = count + 2;
-				}
+				} 
 			}
-		} 
+		}
+		if (b->board[0][0] == 0) {
+			sum = sum + play_add_cell(b, added_cells, 0, 0, 2) + play_add_cell(b, added_cells, 0, 0, 4); 
+			count = count + 2;
+		}
+		if (b->board[0][BOARD_SIZE] == 0) { 
+			sum = sum + play_add_cell(b, added_cells, 0, BOARD_SIZE, 2) + play_add_cell(b, added_cells, 0, BOARD_SIZE, 4); 
+			count = count + 2;
+		}
+		if (b->board[BOARD_SIZE][0] == 0) { 
+			sum = sum + play_add_cell(b, added_cells, BOARD_SIZE, 0, 2) + play_add_cell(b, added_cells, BOARD_SIZE, 0, 4); 
+			count = count + 2;
+		}
+		if (b->board[BOARD_SIZE][BOARD_SIZE] == 0) { 
+			sum = sum + play_add_cell(b, added_cells, BOARD_SIZE, BOARD_SIZE, 2) + play_add_cell(b, added_cells, BOARD_SIZE, BOARD_SIZE, 4); 
+			count = count + 2;
+		}
+
 	}
-#elif defined no_added_value
-// that's bad
-	board *b2 = board_new();
-	board_copy(b, b2);
-	double board_value = play_loop_move(b2, added_cells + 1); 
-	board_free(b2);
-	return board_value; 
-#elif defined only_bad_value
-// that's also bad
-	int j;
-	int x;
-	int y;
-	for (int i = 0; i < BOARD_SIZE * 2; i++) {
-		j = i>>2;
-		x = i % BOARD_SIZE;
-		y = i / BOARD_SIZE;
-		if (b->board[y][x] == 0) {
-			sum = sum + play_add_cell(b, added_cells, y, x, 3); 
-			count++;
-		}
-	} 
-#elif defined all
-	int j;
-	int x;
-	int y;
-	int val;
-	for (int i = 0; i < BOARD_SIZE * BOARD_SIZE * 2; i++) {
-		val = (i % 2 + 1) * 2;
-		j = i>>1;
-		x = j % BOARD_SIZE;
-		y = j / BOARD_SIZE;
-		if (b->board[y][x] != 0) {
-			sum = sum + play_add_cell(b, added_cells, y, x, val); 
-			count++;
-		}
-	} 
-#endif
+
 
 	if (count != 0) {
 		return (sum / count);
@@ -192,12 +252,14 @@ int play_thread_launcher(board *b) {
 		th_par[i].direction = i;
 		th_par[i].value = 0;
 		pthread_create(&th[i], NULL, play_thread, &th_par[i]);
-		// test
+#ifdef debug
 		pthread_join(th[i], NULL); 
+#endif
 	}
 	for (int i = 0; i < 4; i++) {
-		// test
-	//	pthread_join(th[i], NULL); 
+#ifndef debug
+		pthread_join(th[i], NULL); 
+#endif
 		board_free(th_par[i].b);
 	} 
 	double best_value = th_par[0].value;
@@ -217,9 +279,6 @@ int play(board *b) {
 	double val;
 	int f = free_space(b);
 	max_depth = 4;
-	//max_depth = 5 - (f / 2);
-	//move(15,1);
-	//printw("depth = %d    ", max_depth);
 	dir = play_thread_launcher(b);
 	board_move(b, dir);
 	strncpy(b->path, "", 1);

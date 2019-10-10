@@ -1,7 +1,7 @@
 BIN=./
 SOURCE=./
 CFLAGS=-ggdb -rdynamic -funwind-tables -pthread -lncurses
-LIBS=engine.c bot.c
+LIBS=engine.c bot.c clock.c
 
 LIST=main
 
