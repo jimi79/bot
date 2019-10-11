@@ -143,7 +143,8 @@ int board_add(board *b) {
 		position = array[position];
 		i = position / BOARD_SIZE;
 		j = position % BOARD_SIZE;
-		int val = 2 * (rand() % 2 + 1);
+		int val = rand() % 10 == 9 ? 4 : 2; // 10% chance to have a 4, rest are 2
+		// src: http://sleepycoder.github.io/2014/04/01/2048-ai/
 		b->board[i][j] = val;
 		b->last_modified_y = i;
 		b->last_modified_x = j;
@@ -178,7 +179,6 @@ int same_value(board *b, int y, int x, int y2, int x2) {
 }
 
 int board_move(board *b, int direction) { 
-	start_clock(c_move);
 	int possible = false;
 	b->last_modified_y = -1;
 	b->last_modified_x = -1; 
@@ -274,7 +274,6 @@ int board_move(board *b, int direction) {
 			}
 		} 
 	} 
-	end_clock(c_move);
 	return possible; 
 }
 

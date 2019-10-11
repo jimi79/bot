@@ -11,7 +11,8 @@
 #define CALC_ALL 2
 #define CALC_WRONG 3
 #define CALC_CORNERS 4
-#define CALC_OLD 5
+#define CALC_POOR 5 // calculate only two cells
+#define CALC_RANDOM 6 // calculate one random cell
 
 
 
@@ -24,9 +25,7 @@ int free_space(board *b) {
 	int res = 0;
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
-			if (b->board[i][j] == 0) {
-				res++;
-			}
+			res = res + (b->board[i][j] == 0 ? 1 : 0);
 		}
 	}
 	return res;
@@ -35,20 +34,12 @@ int free_space(board *b) {
 double play_add_cells(board *b, int added_cells);
 
 double play_get_value(board *b) {
-
-	start_clock(c_get_value);
 	double res = 0;
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
-			if (b->board[i][j] == 0) {
-				res = res + 1;
-			}
+			res = res + (b->board[i][j] == 0 ? 1 : 0);
 		}
 	}
-	//res = res + board_get_max(b);
-
-	end_clock(c_get_value);
-
 	return res;
 }
 
@@ -111,22 +102,38 @@ double play_add_cells(board *b, int added_cells) {
 	double sum = 0;
 	int count = 0; 
 	//int calc = added_cells < 2 ? CALC_ALL : CALC_CORNERS;
-	int calc = CALC_OLD; 
+	int calc = CALC_POOR; 
 	int x, y; 
-	if (calc == CALC_OLD) {
+
+	if (calc == CALC_RANDOM) { // bad if only a few free cells remining
+		int f = free_space(b);
+		f = (f > 2 ? 2 : f);
+		while (true) {
+			x = rand() % BOARD_SIZE;
+			y = rand() % BOARD_SIZE;
+			if (b->board[y][x] == 0) {
+				sum = sum + play_add_cell(b, added_cells, y, x, 2); // 2 is more common
+				count++; 
+			}
+			if (count > f) {
+				break;
+			}
+
+		}
+	}
+
+	if (calc == CALC_POOR) {
 		int free = free_space(b);
 		int ii = 0;
-		int inc = free / 2; 
+		int inc = free / 3; 
 		if (inc == 0) { inc = 1; }
 		for (int i = 0; i < BOARD_SIZE; i++) {
 			for (int j = 0; j < BOARD_SIZE; j++) {
 				if (b->board[i][j] == 0) {
 					ii++;
 					if (ii % inc == 0) {
-						for (int k = 2; k <= 4; k = k + 2) {
-							sum = sum + play_add_cell(b, added_cells, i, j, k);
-							count++;
-						}
+						sum = sum + play_add_cell(b, added_cells, i, j, 2); // 2 is more common
+						count++;
 					}
 				}
 			}
@@ -275,7 +282,7 @@ int play_thread_launcher(board *b) {
 int play(board *b) {
 	int dir;
 	double val;
-	max_depth = 4;
+	max_depth = 5;
 	dir = play_thread_launcher(b);
 	board_move(b, dir);
 	strncpy(b->path, "", 1);

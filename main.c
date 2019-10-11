@@ -205,7 +205,6 @@ int main(int argc, char *argv[]) {
 		init_clocks();
 		bot(false);
 	//	test();
-		print_clocks();
 	} else {
 		if (!strcmp("bot", argv[1])) { bot(true); }
 		if (!strcmp("test", argv[1])) { test(); }
