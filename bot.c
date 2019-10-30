@@ -14,12 +14,19 @@
 #define CALC_POOR 5 // calculate only two cells
 #define CALC_RANDOM 6 // calculate one random cell
 
-
-
-
-
-
 int max_depth;
+
+struct t_th_par {
+	board *b; // board to solve
+	int direction; 
+	double value;
+}; 
+
+pthread_mutex_t mutex_write_res = PTHREAD_MUTEX_INITIALIZER;
+// pthread_mutex_lock(&mutex_write_res);
+// pthread_mutex_unlock(&mutex_write_res);
+
+
 
 int free_space(board *b) {
 	int res = 0;
@@ -33,25 +40,37 @@ int free_space(board *b) {
 
 double play_add_cells(board *b, int added_cells);
 
-double play_get_value(board *b) {
-	double res = 0;
+int play_get_value(board *b) {
+	int max = 0;
+	int res = 0;
 	for (int i = 0; i < BOARD_SIZE; i++) {
 		for (int j = 0; j < BOARD_SIZE; j++) {
 			res = res + (b->board[i][j] == 0 ? 1 : 0);
+			/*if (b->board[i][j] > max) {
+				max = b->board[i][j];
+			}*/
 		}
-	}
+	} 
 	return res;
 }
 
-void print_state(board *b, double val, int added_cells) {
+void print_state(board *b, int added_cells) {
 	printf("Level: %d\n", added_cells);
 	printf("Path: %s\n", b->path);
-	printf("score: %0.2f\n", val);
+	printf("score: %0.2f\n", play_get_value(b) * 100 + added_cells);
 	printf("Board:\n");
 	board_print_file(stdout, b);
 }
 
 double play_try_move(board *b, int direction, int added_cells) { 
+
+#ifdef debug
+	pthread_mutex_lock(&mutex_write_res);
+	print_state(b, added_cells);
+	printf("trying move %d\n", direction);
+	pthread_mutex_unlock(&mutex_write_res);
+#endif
+
 	b->path[added_cells] = "^v<>"[direction];
 	b->path[added_cells + 1] = '\0';
 	double val;
@@ -62,10 +81,10 @@ double play_try_move(board *b, int direction, int added_cells) {
 		if ((added_cells < max_depth) && (board_get_max(b) >= 16)) {
 			val = play_add_cells(b2, added_cells);
 		} else {
-			val = play_get_value(b2);
+			val = play_get_value(b2) * 100 + added_cells;
 		}
 	} else { 
-		val = play_get_value(b2);
+		val = play_get_value(b2) * 100 + added_cells;
 	}
 #if defined debug
 	print_state(b2, val, added_cells);
@@ -227,16 +246,6 @@ double play_add_cells(board *b, int added_cells) {
 	} 
 }
  
-struct t_th_par {
-	board *b; // board to solve
-	int direction; 
-	double value;
-}; 
-
-pthread_mutex_t mutex_write_res = PTHREAD_MUTEX_INITIALIZER;
-// pthread_mutex_lock(&mutex_write_res);
-// pthread_mutex_unlock(&mutex_write_res);
-
 void *play_thread(void *args) {
 	struct t_th_par *th_par = (struct t_th_par *) args;
 	double value = play_try_move(th_par->b, th_par->direction, 0);

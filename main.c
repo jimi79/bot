@@ -161,42 +161,36 @@ int bot(int ncurses) {
 
 int test() {
 	board *b = board_new();
+	board *b2 = board_new();
 
 /*
 ---------------------------------
-|    16 |     8 |    16 |     8 |
+|     4 |     8 |     8 |   128 |
 ---------------------------------
-|     8 |     2 |    16 |     4 |
+|    16 |   512 |    64 |     8 |
 ---------------------------------
-|     4 |     8 |     2 |     2 |
+|     4 |   256 |  1024 |    32 |
 ---------------------------------
-|     2 |     4 |     4*|     4 |
+|     2*|    32 |    16 |     8 |
 ---------------------------------
 
+
 */
-	b->board[0][0] = 16;
-	b->board[0][1] = 8;
-	b->board[0][2] = 16;
-	b->board[0][3] = 8;
-	b->board[1][0] = 8;
-	b->board[1][1] = 2;
-	b->board[1][2] = 16;
-	b->board[1][3] = 4;
-	b->board[2][0] = 4;
-	b->board[2][1] = 8;
-	b->board[2][2] = 2;
-	b->board[2][3] = 2;
-	b->board[3][0] = 2;
-	b->board[3][1] = 4;
-	b->board[3][2] = 4;
-	b->board[3][3] = 4;
+	b->board[0][0] = 4; b->board[0][1] = 8; b->board[0][2] = 8; b->board[0][3] = 128;
+	b->board[1][0] = 16; b->board[1][1] = 512; b->board[1][2] = 64; b->board[1][3] = 8;
+	b->board[2][0] = 4; b->board[2][1] = 256; b->board[2][2] = 1024; b->board[2][3] = 32;
+	b->board[3][0] = 2; b->board[3][1] = 32; b->board[3][2] = 16; b->board[3][3] = 8;
 
 	
 	board_print_file(stdout, b);
 	int dir = play(b);
 		
-	board_print_file(stdout, b);
-	board_free(b);
+	/*for (int i = 0; i < 4; i++) {
+		board_copy(b, b2);
+		board_move(b2, i);
+		board_print_file(stdout, b2);
+	}*/
+	board_free(b2);
 
 }
 
@@ -204,7 +198,7 @@ int main(int argc, char *argv[]) {
 	if (argc == 1) {
 		init_clocks();
 		bot(false);
-	//	test();
+//		test();
 	} else {
 		if (!strcmp("bot", argv[1])) { bot(true); }
 		if (!strcmp("test", argv[1])) { test(); }
