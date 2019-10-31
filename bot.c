@@ -1,20 +1,14 @@
 #include <time.h>
-#include "engine.h"
 #include "const.h"
 #include "pthread.h"
 #include "math.h"
 #include "clock.h"
+#include "bot_var.h"
+#include "engine.h"
 
 //#define debug
 
-#define CALC_EDGES 1
-#define CALC_ALL 2
-#define CALC_WRONG 3
-#define CALC_CORNERS 4
-#define CALC_POOR 5 // calculate only two cells
-#define CALC_RANDOM 6 // calculate one random cell
-
-int max_depth;
+int calculations; 
 
 struct t_th_par {
 	board *b; // board to solve
@@ -25,8 +19,6 @@ struct t_th_par {
 pthread_mutex_t mutex_write_res = PTHREAD_MUTEX_INITIALIZER;
 // pthread_mutex_lock(&mutex_write_res);
 // pthread_mutex_unlock(&mutex_write_res);
-
-
 
 int free_space(board *b) {
 	int res = 0;
@@ -75,10 +67,9 @@ double play_try_move(board *b, int direction, int added_cells) {
 	b->path[added_cells + 1] = '\0';
 	double val;
 	board *b2 = board_new();
-	//printf("trying move %d\n", direction);
 	board_copy(b, b2);
 	if (board_move(b2, direction)) {
-		if ((added_cells < max_depth) && (board_get_max(b) >= 16)) {
+		if ((added_cells < bot_max_depth) && (board_get_max(b) >= 16)) {
 			val = play_add_cells(b2, added_cells);
 		} else {
 			val = play_get_value(b2) * 100 + added_cells;
@@ -109,24 +100,26 @@ double play_loop_move(board *b, int added_cells) {
 double play_add_cell(board *b, int added_cells, int y, int x, int cell_value) {
 	board *b2 = board_new();
 	board_copy(b, b2);
-	b2->board[y][x] = cell_value;
-	b2->last_modified_y = y;
-	b2->last_modified_x = x;
+	if (x != -1) {
+		b2->board[y][x] = cell_value;
+		b2->last_modified_y = y;
+		b2->last_modified_x = x;
+	}
 	double value = play_loop_move(b2, added_cells + 1); 
 	board_free(b2);
+	calculations++;
 	return value; 
 }
 
 double play_add_cells(board *b, int added_cells) { 
 	double sum = 0;
 	int count = 0; 
-	//int calc = added_cells < 2 ? CALC_ALL : CALC_CORNERS;
-	int calc = CALC_POOR; 
 	int x, y; 
+	int calc = bot_calc[added_cells];
 
 	if (calc == CALC_RANDOM) { // bad if only a few free cells remining
 		int f = free_space(b);
-		f = (f > 2 ? 2 : f);
+		f = 1;
 		while (true) {
 			x = rand() % BOARD_SIZE;
 			y = rand() % BOARD_SIZE;
@@ -139,6 +132,11 @@ double play_add_cells(board *b, int added_cells) {
 			}
 
 		}
+	}
+
+	if (calc == CALC_NONE) { 
+		sum = sum + play_add_cell(b, added_cells, -1, -1, 2); 
+		count++;
 	}
 
 	if (calc == CALC_POOR) {
@@ -158,29 +156,14 @@ double play_add_cells(board *b, int added_cells) {
 			}
 		} 
 	} 
+
 	if (calc == CALC_EDGES) {
-#ifdef debug
-		printf("edges\n");
-#endif 
-		for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
-			x = i % BOARD_SIZE;
-			y = i / BOARD_SIZE;
-			if (b->board[y][x] == 0) {
-				sum = sum + play_add_cell(b, added_cells, y, x, 2) + play_add_cell(b, added_cells, y, x, 4); 
-				count = count + 2;
-			}
-		} 
-		if (count == 0) {
-			for (int i = 1; i < BOARD_SIZE - 1; i++) {
-				for (int j = 1; j < BOARD_SIZE - 1; j++) {
-					if (b->board[i][j] == 0) {
-						sum = sum + play_add_cell(b, added_cells, i, j, 2) + play_add_cell(b, added_cells, i, j, 4); 
-						count = count + 2;
-					}
-				}
-			} 
-		}
+		if (b->board[0][0] == 0) { sum = sum + play_add_cell(b, added_cells, 0, 0, 2); count = count + 1; }
+		if (b->board[0][BOARD_SIZE-1] == 0) { sum = sum + play_add_cell(b, added_cells, 0, BOARD_SIZE - 1, 2); count = count + 1; }
+		if (b->board[BOARD_SIZE-1][0] == 0) { sum = sum + play_add_cell(b, added_cells, BOARD_SIZE - 1, 0, 2); count = count + 1; }
+		if (b->board[BOARD_SIZE-1][BOARD_SIZE-1] == 0) { sum = sum + play_add_cell(b, added_cells, BOARD_SIZE - 1, BOARD_SIZE - 1, 2); count = count + 1; }
 	}
+
 	if (calc == CALC_ALL) {
 		int j;
 		int val;
@@ -274,25 +257,36 @@ int play_thread_launcher(board *b) {
 		board_free(th_par[i].b);
 	} 
 	double best_value = th_par[0].value;
-	printf("%0.2f, ", th_par[0].value);
+#ifdef verbose
+	printf("%0.2f, ", th_par[0].value); 
+#endif
 	double value;
 	int direction = 0;
 	for (int i = 1; i < 4; i++) {
-		printf("%0.2f, ", th_par[i].value);
+#ifdef verbose
+			printf("%0.2f, ", th_par[i].value);
+#endif
 		if (th_par[i].value > best_value) {
 			direction = th_par[i].direction;
 			best_value = th_par[i].value;
 		} 
 	}
+#ifdef verbose
 	printf("\n");
+#endif
 	return direction;
 }
 
 int play(board *b) {
 	int dir;
 	double val;
-	max_depth = 5;
+#ifdef verbose
+	calculations = 0;
+#endif
 	dir = play_thread_launcher(b);
+#ifdef verbose
+	printf("%d calculations done\n", calculations);
+#endif
 	board_move(b, dir);
 	strncpy(b->path, "", 1);
 	return dir;

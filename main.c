@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "engine.h"
 #include "bot.h"
+#include "bot_var.h"
 #include "clock.h"
 
 void write_log(char *s) {
@@ -113,6 +114,11 @@ int human() {
 }
 
 int bot(int ncurses) {
+for (int i = 0;i < 10; i++) {
+		bot_calc[i] = CALC_POOR;
+	}
+	bot_max_depth = 4;
+
 	srand(time(NULL));
 	if (ncurses) {
 		ncurses_init();
@@ -122,16 +128,10 @@ int bot(int ncurses) {
 	int ok = true;
 	int dir;
 	char smove[4][6];
-	/*strncpy(smove[0], "↑", sizeof("↑" + 1));
-	strncpy(smove[1], "↓", sizeof("↓" + 1));
-	strncpy(smove[2], "←", sizeof("←" + 1));
-	strncpy(smove[3], "→", sizeof("→" + 1)); */ // not working in ncurses, check why
-
 	strncpy(smove[0], "^", sizeof("^" + 1));
 	strncpy(smove[1], "v", sizeof("v" + 1));
 	strncpy(smove[2], "<", sizeof("<" + 1));
-	strncpy(smove[3], ">", sizeof(">" + 1));
-
+	strncpy(smove[3], ">", sizeof(">" + 1)); 
 	while (!board_full(b)) {
 		board_add(b);
 		if (ncurses) {
@@ -157,6 +157,7 @@ int bot(int ncurses) {
 	}
 	board_print_file(stdout, b);
 	printf("max = %d\n", board_get_max(b));
+	board_free(b); // not testged
 }	
 
 int test() {

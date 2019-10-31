@@ -1,8 +1,8 @@
 BIN=./
 SOURCE=./
 CFLAGS=-ggdb -rdynamic -funwind-tables -pthread -lncurses
-LIBS=engine.c bot.c clock.c 
-LIST=main
+LIBS=engine.c bot.c clock.c
+LIST=main benchmark_bot
 
 all: $(LIST)
 

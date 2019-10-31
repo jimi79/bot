@@ -1,7 +1,15 @@
+#ifndef DEF_ENGINE_C
+#define DEF_ENGINE_C
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdbool.h>
+#include <ncurses.h>
 #include <time.h>
-#include "engine.h"
+#include <string.h>
 #include "const.h"
 #include "clock.h"
+#include "engine_var.h"
 
 void board_init(board *b) {
 	for (int i = 0; i < BOARD_SIZE; i++) {
@@ -327,3 +335,5 @@ void print_dir(FILE *f, int dir) {
 	dir_to_str(dir, sdir);
 	fprintf(f, "direction = %s\n", sdir); 
 }
+
+#endif

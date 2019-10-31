@@ -1,18 +1,11 @@
+#ifndef DEF_ENGINE_H
+#define DEF_ENGINE_H
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <ncurses.h>
 #include <string.h>
-
-typedef struct _board board;
-
-struct _board {
-	int board[4][4];
-	int last_modified_x;
-	int last_modified_y; 
-	int win_y;
-	int win_x;
-	char path[10]; 
-};
+#include "engine_var.h"
 
 board *board_new();
 void board_init(board *b);
@@ -29,3 +22,4 @@ int board_get_sum(board *b);
 void print_dir(FILE *f, int dir);
 void board_print(board *b);
 
+#endif
