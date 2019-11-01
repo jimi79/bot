@@ -117,7 +117,8 @@ int bot(int ncurses) {
 for (int i = 0;i < 10; i++) {
 		bot_calc[i] = CALC_POOR;
 	}
-	bot_max_depth = 4;
+	bot_max_depth = 5;
+	calc_count_cells_to_add = 3;
 
 	srand(time(NULL));
 	if (ncurses) {

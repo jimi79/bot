@@ -8,3 +8,4 @@
 
 int bot_max_depth; 
 int bot_calc[10];
+int calc_count_cells_to_add;

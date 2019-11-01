@@ -22,31 +22,36 @@ int benchmark_test_bot() {
 }
 
 int benchmark_tests_bot(double *avg_time, double *avg_score) {
-	int score = 0;
-	int time = 0;
+	int s_score = 0;
+	int score;
+	clock_t time = 0;
 	int sub_time = 0;
-	int count = 20;
+	int count = 30;
 	for (int i = 0; i < count; i++) {
 		sub_time = clock();
-		score += benchmark_test_bot();
+		score = benchmark_test_bot();
+		printf("%d,", score);
+		fflush(stdout);
+		s_score += score;
 		sub_time = clock() - sub_time;
 		time += sub_time; 
 	}
-	*avg_time = time / count;
-	*avg_score = score / count;
+	*avg_time = (double)time / count;
+	*avg_score = (double)s_score / count;
 }
 
 void benchmark_test() {
 	double time;
 	double score;
 	benchmark_tests_bot(&time, &score);
-	printf("clocks run: %0.2f millions, score: %0.2f\n", time / 100000, score);
+	printf("avg clocks run: %0.2f millions, avg score: %0.2f\n", time / 100000, score);
 }
 
-void benchmark_bot() {
+void benchmark_compare_method() {
 	printf("NONE, 3: ");
 	benchmark_init_bot_calc(CALC_NONE);
 	bot_max_depth = 3;
+	calc_count_cells_to_add = 3;
 	benchmark_test();
 
 	printf("POOR, 3: ");
@@ -69,16 +74,51 @@ void benchmark_bot() {
 	benchmark_init_bot_calc(CALC_NONE);
 	bot_calc[0] = CALC_ALL;
 	bot_calc[1] = CALC_EDGES; 
-	benchmark_test();
+	benchmark_test(); 
+}
 
+void benchmark_compare_depth() {
+	for (bot_max_depth = 2;bot_max_depth < 9; bot_max_depth++) { 
+		benchmark_init_bot_calc(CALC_NONE);
+		printf("NONE, depth %d: ", bot_max_depth);
+		benchmark_test();
+	}
+	for (calc_count_cells_to_add = 1;calc_count_cells_to_add < 4; calc_count_cells_to_add++) { 
+		for (bot_max_depth = 2;bot_max_depth < 5; bot_max_depth++) { 
+			benchmark_init_bot_calc(CALC_POOR);
+			printf("POOR with %d cells, depth %d: ", calc_count_cells_to_add, bot_max_depth);
+			benchmark_test();
 
+			benchmark_init_bot_calc(CALC_RANDOM);
+			printf("RANDOM with %d, depth %d: ", calc_count_cells_to_add, bot_max_depth);
+			benchmark_test(); 
+		}
+	} 
+}
 
-	//int calc = added_cells < 1 ? CALC_ALL : added_cells < 2 ? CALC_EDGES : CALC_NONE;
-	//int calc = added_cells < 2 ? CALC_ALL : CALC_EDGES;
+void benchmark_depth_versus_cells() {
+	for (int i = 1; i <= 5; i++) {
+		bot_max_depth = i;
+		calc_count_cells_to_add = 6 - i;
+		printf("depth: %d, cells: %d:", bot_max_depth, calc_count_cells_to_add);
+		benchmark_init_bot_calc(CALC_POOR);
+		benchmark_test();
+	}
+}
 
+void benchmark_poor_depth() {
+	calc_count_cells_to_add = 3;
+	benchmark_init_bot_calc(CALC_POOR);
+	for (bot_max_depth = 2; bot_max_depth < 6; bot_max_depth++) {
+		printf("depth: %d, cells: %d:", bot_max_depth, calc_count_cells_to_add);
+		benchmark_test();
+	}
 }
 
 void main() {
-	srand(stime(NULL));
-	benchmark_bot();
+	srand(time(NULL));
+	//benchmark_compare_method();
+	//benchmark_compare_depth();
+	//benchmark_depth_versus_cells();
+	benchmark_poor_depth();
 }

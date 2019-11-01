@@ -118,8 +118,9 @@ double play_add_cells(board *b, int added_cells) {
 	int calc = bot_calc[added_cells];
 
 	if (calc == CALC_RANDOM) { // bad if only a few free cells remining
-		int f = free_space(b);
-		f = 1;
+		int f = calc_count_cells_to_add;
+		int g = free_space(b);
+		if (f > g) { f = g; } 
 		while (true) {
 			x = rand() % BOARD_SIZE;
 			y = rand() % BOARD_SIZE;
@@ -142,7 +143,7 @@ double play_add_cells(board *b, int added_cells) {
 	if (calc == CALC_POOR) {
 		int free = free_space(b);
 		int ii = 0;
-		int inc = free / 3; 
+		int inc = free / calc_count_cells_to_add; 
 		if (inc == 0) { inc = 1; }
 		for (int i = 0; i < BOARD_SIZE; i++) {
 			for (int j = 0; j < BOARD_SIZE; j++) {
