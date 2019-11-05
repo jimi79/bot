@@ -1,0 +1,42 @@
+NONE, 3: clocks run: 1.53 millions, score: 422.00
+POOR, 3: clocks run: 109.87 millions, score: 1510.00
+EDGES, 3: clocks run: 9.99 millions, score: 998.00
+RANDOM, 3: clocks run: 24.22 millions, score: 1036.00
+ALL, 3: clocks run: 59.02 millions, score: 729.00
+ALL/EDGES/NONE, 3: clocks run: 38.61 millions, score: 614.00
+
+NONE, 2: clocks run: 1.63 millions, score: 665.60
+POOR, 2: clocks run: 8.87 millions, score: 1075.20
+RANDOM, 2: clocks run: 4.51 millions, score: 1100.80
+NONE, 3: clocks run: 2.08 millions, score: 550.40
+POOR, 3: clocks run: 113.28 millions, score: 1484.80
+RANDOM, 3: clocks run: 24.67 millions, score: 1203.20
+NONE, 4: clocks run: 2.45 millions, score: 358.40
+POOR, 4: clocks run: 1581.48 millions, score: 1536.00
+RANDOM, 4: clocks run: 213.89 millions, score: 1536.00
+NONE, 5: clocks run: 4.88 millions, score: 371.20
+
+NONE, depth 2: 512,256,512,256,512,512,512,1024,256,256,512,512,512,512,512,avg clocks run: 1.36 millions, avg score: 477.87
+NONE, depth 3: 256,256,512,512,256,512,1024,256,512,512,256,256,1024,512,1024,avg clocks run: 1.87 millions, avg score: 512.00
+NONE, depth 4: 512,512,256,512,256,256,512,512,512,512,512,256,512,256,512,avg clocks run: 2.86 millions, avg score: 426.67
+NONE, depth 5: 512,256,512,512,256,512,256,256,256,512,512,512,256,256,512,avg clocks run: 5.21 millions, avg score: 392.53
+NONE, depth 6: 256,128,128,512,256,1024,512,256,512,256,512,256,256,512,512,avg clocks run: 11.74 millions, avg score: 392.53
+NONE, depth 7: 512,128,256,128,512,256,256,256,256,256,256,512,128,512,256,avg clocks run: 24.02 millions, avg score: 298.67
+NONE, depth 8: 256,256,128,256,128,128,256,256,256,256,256,128,64,256,512,avg clocks run: 49.23 millions, avg score: 226.13
+POOR with 1 cells, depth 2: 512,1024,512,1024,1024,1024,1024,1024,1024,1024,1024,512,1024,1024,1024,avg clocks run: 2.48 millions, avg score: 921.60
+POOR with 1 cells, depth 3: 2048,1024,1024,512,1024,1024,1024,1024,1024,512,512,1024,512,2048,1024,avg clocks run: 4.39 millions, avg score: 1024.00
+POOR with 1 cells, depth 4: 1024,1024,2048,1024,1024,512,1024,1024,1024,512,512,512,512,1024,1024,avg clocks run: 8.42 millions, avg score: 921.60
+POOR with 2 cells, depth 2: 1024,1024,512,512,1024,1024,1024,1024,1024,1024,1024,1024,512,1024,1024,avg clocks run: 4.36 millions, avg score: 921.60
+POOR with 2 cells, depth 3: 1024,512,512,2048,2048,1024,1024,1024,1024,512,2048,2048,1024,1024,2048,avg clocks run: 24.01 millions, avg score: 1262.93
+POOR with 2 cells, depth 4: 2048,2048,1024,2048,2048,2048,2048,512,2048,2048,1024,2048,2048,2048,2048,avg clocks run: 221.04 millions, avg score: 1809.07
+POOR with 3 cells, depth 2: 2048,1024,1024,1024,1024,1024,1024,1024,1024,1024,256,1024,512,1024,2048,avg clocks run: 8.68 millions, avg score: 1075.20
+POOR with 3 cells, depth 3: 2048,1024,1024,2048,2048,2048,512,2048,1024,1024,1024,1024,1024,2048,1024,avg clocks run: 104.97 millions, avg score: 1399.47
+POOR with 3 cells, depth 4: 2048,1024,2048,4096,2048,1024,2048,2048,1024,2048,1024,2048,2048,2048,1024,avg clocks run: -1084.88 millions, avg score: 1843.20
+
+POOR
+depth: 1, cells: 5:1024,512,512,512,512,512,512,1024,512,1024,1024,512,512,1024,1024,512,512,1024,1024,1024,1024,256,1024,512,2048,512,512,512,1024,512,avg clocks run: 2.19 millions, avg score: 759.47
+depth: 2, cells: 4:2048,1024,512,1024,1024,1024,1024,1024,2048,1024,512,1024,1024,1024,512,1024,512,1024,1024,512,256,1024,1024,1024,1024,1024,1024,1024,1024,1024,avg clocks run: 13.75 millions, avg score: 981.33
+depth: 3, cells: 3:2048,2048,2048,1024,2048,1024,2048,1024,4096,2048,2048,2048,2048,4096,1024,1024,1024,2048,2048,1024,2048,1024,1024,2048,2048,1024,1024,2048,1024,2048,avg clocks run: 128.28 millions, avg score: 1774.93
+depth: 4, cells: 2:2048,1024,2048,1024,2048,2048,2048,512,1024,2048,1024,2048,2048,2048,2048,1024,2048,2048,2048,2048,2048,2048,1024,1024,1024,1024,2048,4096,2048,1024,avg clocks run: 212.44 millions, avg score: 1723.73
+depth: 5, cells: 1:1024,1024,1024,1024,512,1024,1024,512,1024,512,1024,2048,512,1024,1024,1024,1024,1024,2048,1024,2048,1024,1024,1024,512,2048,2048,1024,1024,1024,avg clocks run: 29.63 millions, avg score: 1109.33
+
