@@ -171,8 +171,19 @@ int board_full(board *b) {
 			if (!full) { break; }
 		}
 	}
-	return full;
+	return full; 
+}
 
+int board_occupied(board *b) {
+	int f = 0;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (b->board[i][j] != 0) {
+				f++;
+			}
+		}
+	}
+	return f; 
 }
 
 void board_print_filename(char *c, board *b) {

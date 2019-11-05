@@ -115,10 +115,37 @@ void benchmark_poor_depth() {
 	}
 }
 
+void benchmark_time_to_solve() {
+	clock_t begin, end;
+
+	for (int i = 0;i < 10; i++) {
+		bot_calc[i] = CALC_POOR;
+	}
+	bot_max_depth = 3;
+	calc_count_cells_to_add = 3;
+	begin = clock();
+
+	srand(time(NULL));
+	board *b = board_new();
+	board_init(b);
+	int ok = true;
+	int dir;
+	while (!board_full(b)) {
+		board_add(b);
+		dir = play(b);
+	}
+	printf("max = %d\n", board_get_max(b));
+	board_free(b);
+	end = clock();
+	printf("time needed: %d\n", end - begin);
+
+}
+
 void main() {
 	srand(time(NULL));
 	//benchmark_compare_method();
 	//benchmark_compare_depth();
 	//benchmark_depth_versus_cells();
-	benchmark_poor_depth();
+	//benchmark_poor_depth();
+	benchmark_time_to_solve();
 }

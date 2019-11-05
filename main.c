@@ -114,10 +114,9 @@ int human() {
 }
 
 int bot(int ncurses) {
-for (int i = 0;i < 10; i++) {
+	for (int i = 0;i < 10; i++) {
 		bot_calc[i] = CALC_POOR;
 	}
-	bot_max_depth = 5;
 	calc_count_cells_to_add = 3;
 
 	srand(time(NULL));
@@ -129,19 +128,26 @@ for (int i = 0;i < 10; i++) {
 	int ok = true;
 	int dir;
 	char smove[4][6];
-	strncpy(smove[0], "^", sizeof("^" + 1));
-	strncpy(smove[1], "v", sizeof("v" + 1));
-	strncpy(smove[2], "<", sizeof("<" + 1));
-	strncpy(smove[3], ">", sizeof(">" + 1)); 
+	strncpy(smove[0], "^", sizeof("^") + 1);
+	strncpy(smove[1], "v", sizeof("v") + 1);
+	strncpy(smove[2], "<", sizeof("<") + 1);
+	strncpy(smove[3], ">", sizeof(">") + 1); 
+	int c;
 	while (!board_full(b)) {
 		board_add(b);
+		
+		c = board_occupied(b);
+		
 		if (ncurses) {
 			board_print_win(b, 0, 0);
+			move(10,0);
+			printw("free: %d  ", 16 - c);
 		} else {
 			board_print_file(stdout, b); 
 			fflush(stdout);
 		}
-		dir = play(b);
+		bot_max_depth = c > 10 ? 5 : 4; 
+		dir = play(b); 
 		if (ncurses) {
 			move(11,0);
 			printw("%s", smove[dir]); 
@@ -158,7 +164,7 @@ for (int i = 0;i < 10; i++) {
 	}
 	board_print_file(stdout, b);
 	printf("max = %d\n", board_get_max(b));
-	board_free(b); // not testged
+	board_free(b);
 }	
 
 int test() {
@@ -202,8 +208,9 @@ int main(int argc, char *argv[]) {
 		bot(false);
 //		test();
 	} else {
-		if (!strcmp("bot", argv[1])) { bot(true); }
+		if (!strcmp("bot", argv[1])) { bot(true); } // bot with ncurses
 		if (!strcmp("test", argv[1])) { test(); }
 		if (!strcmp("human", argv[1])) { human(); }
 	}
+	return true;
 }
