@@ -132,21 +132,22 @@ int bot(int ncurses) {
 	strncpy(smove[1], "v", sizeof("v") + 1);
 	strncpy(smove[2], "<", sizeof("<") + 1);
 	strncpy(smove[3], ">", sizeof(">") + 1); 
-	int c;
+	int occupied;
+	int score;
 	while (!board_full(b)) {
 		board_add(b);
 		
-		c = board_occupied(b);
+		board_infos(b, &occupied);
 		
 		if (ncurses) {
 			board_print_win(b, 0, 0);
 			move(10,0);
-			printw("free: %d  ", 16 - c);
+			printw("occupied boxes: %d ", occupied);
 		} else {
 			board_print_file(stdout, b); 
 			fflush(stdout);
 		}
-		bot_max_depth = c < 11 ? 4 : (c < 15 ? 5 : 6); 
+		bot_max_depth = occupied < 13 ? 4 : 5; 
 		dir = play(b); 
 		if (ncurses) {
 			move(11,0);

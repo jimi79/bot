@@ -21,6 +21,6 @@ void board_copy(board *src, board *dst);
 int board_get_sum(board *b); 
 void print_dir(FILE *f, int dir);
 void board_print(board *b);
-int board_occupied(board *b);
+void board_infos(board *b, int *occupied);
 
 #endif
