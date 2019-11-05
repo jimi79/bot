@@ -146,7 +146,7 @@ int bot(int ncurses) {
 			board_print_file(stdout, b); 
 			fflush(stdout);
 		}
-		bot_max_depth = c > 10 ? 5 : 4; 
+		bot_max_depth = c < 11 ? 4 : (c < 15 ? 5 : 6); 
 		dir = play(b); 
 		if (ncurses) {
 			move(11,0);
